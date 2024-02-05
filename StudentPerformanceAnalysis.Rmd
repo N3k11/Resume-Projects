@@ -1,0 +1,371 @@
+---
+title: 'Project #3: An Evaluation of Exam Scores'
+author: "Justin Long"
+date: "2023-11-28"
+output: html_document
+---
+
+# Data Introduction
+The purpose of this data is to examine the affects that different factors have on exam scores. 
+These factors include test preparation, lunch, and parental level of education.
+
+The data can be found at this link: [Exam Scores](http://roycekimmons.com/tools/generated_data/exams)
+
+Because the original compiler of this data mentioned it, it will be mentioned here as well, this 
+data set is completed generated for the purpose of practice and does not reflect any real life students.
+
+##  Preparing the Data
+```{r}
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(psych)
+setwd("/Users/jakelong/Documents/Data\ Exploration/Project3")
+SP <- read.csv("StudentsPerformance.csv",
+               header = T)
+PSP <- filter(SP, test.preparation.course == "completed")
+NPSP <- filter(SP, test.preparation.course == "none")
+```
+The first data set, *SP*, represents the complete data set in its entirety. 
+The second and third data set, *PSP* and *NPSP*, are filtered sets of the first data set.
+They are split between students who prepared for the test and those who elected not to prepare.
+These data sets will be useful shortly.
+
+## Understanding the Data
+Before any tests are run on the data, it is important to create a reference point to compare to.
+The average exam scores for each subject will be set to variables in order to make future calculations easier.
+
+#### Math Scores
+```{r}
+hist(SP$math.score, main = "Overall Measure of Math Scores",
+     xlab = "Math Scores", ylab = "Frequency", col = "skyblue4")
+describe(SP$math.score)
+MathAVG <- mean(SP$math.score)
+```
+The math scores appear unimodal and skewed to the left.
+The average exam score is 66.
+
+#### Reading Scores
+```{r}
+hist(SP$reading.score, main = "Overall Measure of Reading Scores",
+     xlab = "Reading Scores", ylab = "Frequency", col = "skyblue4")
+describe(SP$reading.score)
+ReadingAVG <- mean(SP$reading.score)
+```
+The reading scores appear unimodal and are skewed to the left.
+The average exam score is 69.
+
+#### Writing Scores
+```{r}
+hist(SP$writing.score, main = "Overall Measure of Writing Scores",
+     xlab = "Writing Scores", ylab = "Frequency", col = "skyblue4")
+describe(SP$writing.score)
+WritingAVG <- mean(SP$writing.score)
+```
+The writing scores appear unimodal and are skewed to the left.
+The average exam score is 68.  
+
+#### Student Test Preparation
+```{r}
+ggplot(SP, aes(test.preparation.course)) +
+    geom_bar() + labs(x = 'Test Preparation Course', y = 'Number of Students')
+```
+
+It is clear that the majority of students choose not to prepare for the exam.
+
+#### Student Lunch
+```{r}
+ggplot(SP, aes(lunch)) +
+    geom_bar() + labs(x = 'Type of Lunch', y = 'Number of Students')
+```
+
+The majority of students receive a standard lunch as opposed to a free/reduced lunch.
+
+#### Parental Level of Education
+```{r}
+ggplot(SP, aes(parental.level.of.education)) +
+    geom_bar() + labs(x = 'Parental Level of Education', y = 'Number of Students')
+```
+
+Parents with an Associate's degree with or some college education are the most common. Parents with a high school diploma or some amount high school education are the third and fourth most common respectively. The numbers decrease a lot here as a parent with a Bachelor's degree is the fifth most common. As one may expect, a parent with a Master's degree appears the least. 
+
+# Task 1: Examining How Test Prep Affects Scores
+This section is going to examine the grades of the students on the basis of exam preparation.
+The data will be split between students who chose to prepare and those who did not.
+The average scores from each of the two groups will then be compared.
+
+## Students who Prepared
+#### Math
+```{r}
+describe(PSP$math.score)
+PrepMath <- mean(PSP$math.score)
+```
+
+#### Reading
+```{r}
+describe(PSP$reading.score)
+PrepReading <- mean(PSP$reading.score)
+```
+
+#### Writing
+```{r}
+describe(PSP$writing.score)
+PrepWriting <- mean(PSP$writing.score)
+```
+
+## Students Who Did Not Prepare
+#### Math 
+```{r}
+describe(NPSP$math.score)
+NPMath <- mean(NPSP$math.score)
+```
+
+#### Reading
+```{r}
+describe(NPSP$reading.score)
+NPReading <- mean(NPSP$reading.score)
+```
+
+#### Writing
+```{r}
+describe(NPSP$writing.score)
+NPWriting <- mean(NPSP$writing.score)
+```
+
+## Difference
+#### Math
+```{r}
+PrepMathDiff <- PrepMath - NPMath; PrepMathDiff
+```
+
+#### Reading
+```{r}
+PrepReadingDiff <- PrepReading - NPReading; PrepReadingDiff
+```
+
+#### Writing
+```{r}
+PrepWritingDiff <- PrepWriting - NPWriting; PrepWritingDiff
+```
+Students who prepared for the exam performed better across the board. Writing exam scores benefited the most from the preparation. Reading exam scores benefited the second most, and math scores benefited the least.
+
+# Task 2: Comparing Lunch Type With Exam Scores
+## Free/Reduced Lunch
+#### Math
+```{r}
+describe(SP$math.score[SP$lunch == "free/reduced"])
+FLM <- mean(SP$math.score[SP$lunch == "free/reduced"])
+```
+
+#### Reading
+```{r}
+describe(SP$reading.score[SP$lunch == "free/reduced"])
+FLR <- mean(SP$reading.score[SP$lunch == "free/reduced"])
+```
+
+#### Writing
+```{r}
+describe(SP$writing.score[SP$lunch == "free/reduced"])
+FLW <- mean(SP$writing.score[SP$lunch == "free/reduced"])
+```
+
+## Standard Lunch
+#### Math
+```{r}
+describe(SP$math.score[SP$lunch == "standard"])
+SLM <- mean(SP$math.score[SP$lunch == "standard"])
+
+```
+
+#### Reading
+```{r}
+describe(SP$reading.score[SP$lunch == "standard"])
+SLR <- mean(SP$reading.score[SP$lunch == "standard"])
+```
+
+#### Writing
+```{r}
+describe(SP$reading.score[SP$lunch == "standard"])
+SLW <- mean(SP$writing.score[SP$lunch == "standard"])
+```
+
+## Difference
+#### Math
+```{r}
+LMDiff <- SLM - FLM; LMDiff
+```
+#### Reading
+```{r}
+LRDiff <- SLR - FLR; LRDiff
+```
+#### Writing
+```{r}
+LWDiff <- SLW - FLW; LWDiff
+```
+The data shows that students who receive free/reduced lunch perform worse on the exams.
+
+# Task 3: The Impact of Parental Education Level on Student Exam Scores.
+## Some High School
+#### Math
+```{r}
+describe(SP$math.score[SP$parental.level.of.education == "some high school"])
+SHMath <- mean(SP$math.score[SP$parental.level.of.education == "some high school"])
+```
+
+#### Reading
+```{r}
+describe(SP$reading.score[SP$parental.level.of.education == "some high school"])
+SHReading <- mean(SP$reading.score[SP$parental.level.of.education == "some high school"])
+```
+
+#### Writing
+```{r}
+describe(SP$writing.score[SP$parental.level.of.education == "some high school"])
+SHWriting <- mean(SP$writing.score[SP$parental.level.of.education == "some high school"])
+```
+
+## High School
+#### Math
+```{r}
+describe(SP$math.score[SP$parental.level.of.education == "high school"])
+HMath <- mean(SP$math.score[SP$parental.level.of.education == "high school"])
+```
+
+#### Reading
+```{r}
+describe(SP$reading.score[SP$parental.level.of.education == "high school"])
+HReading <- mean(SP$reading.score[SP$parental.level.of.education == "high school"])
+```
+
+#### Writing
+```{r}
+describe(SP$writing.score[SP$parental.level.of.education == "high school"])
+HWriting <- mean(SP$writing.score[SP$parental.level.of.education == "high school"])
+```
+
+## Some College
+#### Math
+```{r}
+describe(SP$math.score[SP$parental.level.of.education == "some college"])
+SCMath <- mean(SP$math.score[SP$parental.level.of.education == "some college"])
+```
+
+#### Reading
+```{r}
+describe(SP$reading.score[SP$parental.level.of.education == "some college"])
+SCReading <- mean(SP$reading.score[SP$parental.level.of.education == "some college"])
+```
+
+#### Writing
+```{r}
+describe(SP$writing.score[SP$parental.level.of.education == "some college"])
+SCWriting <- mean(SP$writing.score[SP$parental.level.of.education == "some college"])
+```
+
+## Associate's Degree
+#### Math
+```{r}
+describe(SP$math.score[SP$parental.level.of.education == "associate's degree"])
+ADMath <- mean(SP$math.score[SP$parental.level.of.education == "associate's degree"])
+```
+
+#### Reading
+```{r}
+describe(SP$reading.score[SP$parental.level.of.education == "associate's degree"])
+ADReading <- mean(SP$reading.score[SP$parental.level.of.education == "associate's degree"])
+```
+
+#### Writing
+```{r}
+describe(SP$writing.score[SP$parental.level.of.education == "associate's degree"])
+ADWriting <- mean(SP$writing.score[SP$parental.level.of.education == "associate's degree"])
+```
+
+## Bachelor's Degree
+#### Math
+```{r}
+describe(SP$math.score[SP$parental.level.of.education == "bachelor's degree"])
+BDMath <- mean(SP$math.score[SP$parental.level.of.education == "bachelor's degree"])
+```
+
+#### Reading
+```{r}
+describe(SP$reading.score[SP$parental.level.of.education == "bachelor's degree"])
+BDReading <- mean(SP$reading.score[SP$parental.level.of.education == "bachelor's degree"])
+```
+
+#### Writing 
+```{r}
+describe(SP$writing.score[SP$parental.level.of.education == "bachelor's degree"])
+BDWriting <- mean(SP$writing.score[SP$parental.level.of.education == "bachelor's degree"])
+```
+
+## Master's Degree
+#### Math
+```{r}
+describe(SP$math.score[SP$parental.level.of.education == "master's degree"])
+MDMath <- mean(SP$math.score[SP$parental.level.of.education == "master's degree"])
+```
+
+#### Reading
+```{r}
+describe(SP$reading.score[SP$parental.level.of.education == "master's degree"])
+MDReading <- mean(SP$reading.score[SP$parental.level.of.education == "master's degree"])
+```
+
+#### Writing
+```{r}
+describe(SP$writing.score[SP$parental.level.of.education == "master's degree"])
+MDWriting <- mean(SP$writing.score[SP$parental.level.of.education == "master's degree"])
+```
+
+## Math Comparison
+```{r}
+cf <- data.frame(
+  Degree=c("Some High School", "High School", "Some College", "Associate's Degree", "Bachelor's Degree", 
+         "Master's Degree"),
+  Average=c(SHMath, HMath, SCMath, ADMath, BDMath, MDMath)
+)
+ggplot(cf, aes(x=Degree, y=Average)) + 
+  geom_bar(stat = "identity")
+```
+
+## Reading Comparison
+```{r}
+rdf <- data.frame(
+  Degree=c("Some High School", "High School", "Some College", "Associate's Degree", "Bachelor's Degree", 
+           "Master's Degree"),
+  Average=c(SHReading, HReading, SCReading, ADReading, BDReading, MDReading)
+)
+ggplot(rdf, aes(x=Degree, y=Average)) + 
+  geom_bar(stat = "identity")
+```
+
+## Writing Comparison
+```{r}
+wdf <- data.frame(
+  Degree=c("Some High School", "High School", "Some College", "Associate's Degree", "Bachelor's Degree", 
+           "Master's Degree"),
+  Average=c(SHWriting, HWriting, SCWriting, ADWriting, BDWriting, MDWriting)
+)
+ggplot(wdf, aes(x=Degree, y=Average)) + 
+  geom_bar(stat = "identity")
+```
+
+Looking at the data, the appears to be a general trend among all three subjects, the higher level of parental education, the higher the average exam scores are. The exception to this trend is that students whose parents only completed some high school, on average, perform better than those students whose parents have a high school diploma.
+
+# Putting It All Together
+
+Through out this study, three factors and their effects on exam scores have been examined: test preparation, free/standard lunch, and parental level of education. In order to examine the impact of these factors, the students were broken up into groups and the exam averages were compared to overall averages for each subject. 
+
+##### Test Prepartion
+
+Looking at the effects of test preparation first, the average exam scores of students who prepared for the test were higher than their counter parts who elected not to prepare. This outcome is expected as preparing for an exam is a logical way to improve the outcome. One helpful extension of this study would be comparing the amount of time studying and the corresponding average grade. 
+
+##### Free/Reduced Lunch vs. Standard Lunch
+
+The data tests concluded that the students who received free or reduced lunch performed worse than the students that received the standard lunch. Unlike the preparation tests, the explanations are not immediately obvious. It is important to take these tests and look beyond. For example, students who receive a free or reduced lunch typically come from a worse economical situation. In this situation, the lunches are not as impactful as general economic situations of the students. Another reason could be that the lunches are physically different. The standard lunch could be comprised of a meat and vegetables and the free/reduced lunch could be a simple PB&J, for example. In this situation, examining the nutritional components of the lunches and how nutrition affects exam scores could be beneficial.
+
+##### Parental Level of Education
+
+Much like the lunch tests, the correlation between student exam scores and the level of parental education is less obvious. One possible explanation is that parents who completed a higher level of education can better assist their children in learning themselves. Another possibility is that more educated parents place more importance on the value of education and thus create a home environment that encourages educational success. There is likely no one correct explanation. It is more likely that the correct explanation is a mixture of multiple factors.
